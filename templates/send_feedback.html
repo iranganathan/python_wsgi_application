@@ -1,0 +1,100 @@
+<script>
+    // function for getting city names by AJAX
+    function setCities(select) {
+        var region_id = select.options[select.selectedIndex].value;
+        if (region_id === 0) {
+            document.getElementById("cities").disabled = true;
+        }
+        else {
+            document.getElementById("cities").disabled = false;
+            var xhr = new XMLHttpRequest();
+            var url = "get_data";
+            var params = "category=cities&id=" + region_id;
+            xhr.open("POST", url, true);
+
+            xhr.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+
+            // function that starts after the server receives a response
+            xhr.onreadystatechange = function () {
+                if (xhr.readyState === 4 && xhr.status === 200) {
+                    var cities_select = document.getElementById("cities");
+                    for (i = cities_select.options.length - 1; i >= 1; i--) {
+                        cities_select.remove(i);
+                    }
+                    cities_select.insertAdjacentHTML('beforeend', xhr.responseText);
+                }
+            };
+            xhr.send(params);
+        }
+    }
+
+    // function for form validation
+    function validateForm() {
+        var error_message = "Please fill in the following fields correctly: ";
+        var submit = true;
+
+        var form = document.forms["feedback_form"];
+        var last_name = form["last_name"].value;
+        var first_name = form["first_name"].value;
+        var message = form["message"].value;
+        var phone = form["phone"].value;
+        var email = form["email"].value;
+
+        var regex_phone = new RegExp("^\\+?\\d{1,19}$");
+        var regex_email = new RegExp("^(([^<>()\\[\\]\\\\.,;:\\s@\"]+(\\.[^<>()\\[\\]\\\\.,;:\\s@\"]+)*)|(\".+\"))@((\\[[0-9]{1,3}\\.[0-9]{1,3}\\.[0-9]{1,3}\\.[0-9]{1,3}])|(([a-zA-Z\\-0-9]+\\.)+[a-zA-Z]{2,}))$");
+
+        // function to simplify field verification
+        function checkField(condition, field_name, message) {
+            if (condition) {
+                form[field_name].style.background = "#efc9c9";
+                error_message += message;
+                submit = false;
+            }
+            else {
+                form[field_name].style.removeProperty('background');
+            }
+        }
+
+        checkField(last_name === "", "last_name", "Last Name, ");
+        checkField(first_name === "", "first_name", "First Name, ");
+        checkField(!(phone === "" || regex_phone.test(phone)), "phone", "Phone, ");
+        checkField(!(email === "" || regex_email.test(email)), "email", "Email, ");
+        checkField(message === "", "message", "Message, ");
+
+        if (!submit) {
+            var message_length = error_message.length;
+            if (error_message[message_length - 2] === ",") {
+                error_message = error_message.substring(0, message_length - 2);
+            }
+            alert(error_message);
+            return false;
+        }
+    }
+</script>
+%(alert)s
+<p>
+    Please fill the following form:
+</p>
+<form action="" name="feedback_form" method="post" onsubmit="return validateForm()">
+    <label>Last Name*</label><br>
+    <input type="text" name="last_name" size="30" maxlength="80">
+    <label>First Name*</label><br>
+    <input type="text" name="first_name" size="30" maxlength="80">
+    <label>Region</label><br>
+    <select id="regions" name="region" onChange="setCities(this);">
+        <option value="">Select</option>
+        %(regions)s
+    </select>
+    <label>City</label><br>
+    <select id="cities" name="city" disabled>
+        <option value="">Select</option>
+    </select>
+    <label>Phone Number</label><br>
+    <input type="text" name="phone" placeholder="+79991234567" size="30" maxlength="20">
+    <label>Email</label><br>
+    <input type="text" name="email" placeholder="example@domain.com" size="30" maxlength="80">
+    <label>Message*</label><br>
+    <textarea rows="10" cols="50" type="text" name="message"></textarea>
+    <br><br>
+    <input type="submit" value="Send!">
+</form>

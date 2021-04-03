@@ -1,0 +1,43 @@
+<script>
+    // function for form validation
+    function validateForm() {
+        var submit = true;
+
+        var error_message = "Please fill in the following fields correctly: ";
+        var form = document.forms["city_form"];
+        var fields = [["name", "Name"], ["region", "Region"]];
+        var field;
+
+        var array_length = fields.length;
+        for (var i = 0; i < array_length; i++) {
+            field = form[fields[i][0]].value;
+            if (field === "") {
+                form[fields[i][0]].style.background = "#efc9c9";
+                error_message += fields[i][1] + ", ";
+                submit = false;
+            }
+            else {
+                form[fields[i][0]].style.removeProperty('background');
+            }
+        }
+
+        if (!submit) {
+            alert(error_message);
+            return false;
+        }
+    }
+</script>
+%(alert)s
+<p>
+    Please fill the following form:
+</p>
+<form action="" name="city_form" method="post" onsubmit="return validateForm()">
+    <label>Region*</label><br>
+    <select id="regions" name="region">
+        <option value="">Select</option>
+        %(regions)s
+    </select>
+    <label>Name*</label><br>
+    <input type="text" name="name" size="30" maxlength="80">
+    <input type="submit" value="Save">
+</form>
